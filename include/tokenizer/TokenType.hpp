@@ -1,0 +1,56 @@
+#pragma once
+
+enum class TokenType
+{
+  MONNY_EOF,
+
+  PRINT,
+  IF,
+  NIL,
+  AND,
+  OR,
+  INCLUDE,
+  FUNC,
+  ELSE,
+  RETURN,
+  DEF,
+  FOR,
+  WHILE,
+  TRUE,
+  FALSE,
+  CONST,
+
+  TO_STRING,
+  INPUT,
+  TO_NUMBER,
+  CLEAR,
+
+  LEFT_PAREN,
+  RIGHT_PAREN,
+  SEMICOLON,
+  LEFT_BRACE,
+  RIGHT_BRACE,
+  LEFT_BRACKET,
+  RIGHT_BRACKET,
+  COMMA,
+  DOT,
+  MINUS,
+  PLUS,
+  STAR,
+  SLASH,
+  EQUAL,
+  MINUS_MINUS,
+  PLUS_PLUS,
+
+  EQUAL_EQUAL,
+  BANG_EQUAL,
+  GREATER,
+  GREATER_EQUAL,
+  LESS,
+  LESS_EQUAL,
+  BANG,
+
+  STRING,
+  NUMBER,
+  IDENTIFIER,
+};
