@@ -13,10 +13,27 @@ private:
     std::shared_ptr<Environment> environment = std::make_shared<Environment>();
     std::any result;
 
-    // Estrutura simples para funções (sem classe nova)
-    struct FunctionData
+    class FunctionObject
     {
+    public:
         std::shared_ptr<Statements::FunctionDef> declaration;
+        std::shared_ptr<Environment> closure;
+
+        FunctionObject(std::shared_ptr<Statements::FunctionDef> declaration,
+                       std::shared_ptr<Environment> closure)
+            : declaration(declaration), closure(closure) {}
+
+        std::any call(Interpreter *interpreter, const std::vector<std::any> &arguments);
+
+        int arity() const
+        {
+            return declaration->params.size();
+        }
+
+        std::string toString() const
+        {
+            return "<fn " + declaration->name.lexeme + ">";
+        }
     };
 
     // Usa uma exceção especial para retorno
@@ -67,6 +84,7 @@ public:
                               std::shared_ptr<Statements::FunctionDef> funcDef);
 
     std::any executeFile(const std::string &filename);
+    std::string processEscapeSequences(const std::string& str);
 
 private:
     // Funções auxiliares

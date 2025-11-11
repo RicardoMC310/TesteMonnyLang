@@ -79,7 +79,7 @@ void Interpreter::executeConst(std::shared_ptr<Statements::Const> stmt)
 void Interpreter::executeFunctionDef(std::shared_ptr<Statements::FunctionDef> stmt)
 {
     // Armazena a definição da função diretamente no environment
-    FunctionData funcData{stmt};
+    FunctionObject funcData{stmt, environment};
     environment->define(stmt->name.lexeme, funcData, false);
 }
 
@@ -93,9 +93,18 @@ void Interpreter::executePrint(std::shared_ptr<Statements::Print> stmt)
     for (size_t i = 0; i < stmt->expressions.size(); i++)
     {
         std::any value = evaluate(stmt->expressions[i]);
-        std::cout << stringify(value);
+
+        // Se for string, processa caracteres de escape
+        if (value.type() == typeid(std::string))
+        {
+            std::string str = std::any_cast<std::string>(value);
+            std::cout << processEscapeSequences(str);
+        }
+        else
+        {
+            std::cout << stringify(value);
+        }
     }
-    std::cout << std::endl;
 }
 
 void Interpreter::executeExpression(std::shared_ptr<Statements::Expression> stmt)
@@ -580,9 +589,9 @@ std::any Interpreter::evaluateFunctionCall(std::shared_ptr<FunctionCall> expr)
     {
         std::any funcAny = environment->get(functionName);
 
-        if (funcAny.type() == typeid(FunctionData))
+        if (funcAny.type() == typeid(FunctionObject))
         {
-            FunctionData funcData = std::any_cast<FunctionData>(funcAny);
+            FunctionObject funcData = std::any_cast<FunctionObject>(funcAny);
             auto funcDef = funcData.declaration;
 
             // Avalia argumentos
@@ -692,7 +701,7 @@ std::string Interpreter::stringify(std::any value)
     }
     if (value.type() == typeid(std::string))
         return std::any_cast<std::string>(value);
-    if (value.type() == typeid(FunctionData))
+    if (value.type() == typeid(FunctionObject))
         return "<function>";
     if (value.type() == typeid(std::shared_ptr<ArrayObject>))
     {
@@ -768,4 +777,25 @@ std::any Interpreter::executeFile(const std::string &filename)
     }
 
     return nullptr; // include não retorna valor
+}
+
+std::string Interpreter::processEscapeSequences(const std::string& str)
+{
+    std::string result;
+    for (size_t i = 0; i < str.length(); i++) {
+        if (str[i] == '\\' && i + 1 < str.length()) {
+            switch (str[i + 1]) {
+                case 'n': result += '\n'; break;
+                case 't': result += '\t'; break;
+                case 'r': result += '\r'; break;
+                case '\\': result += '\\'; break;
+                case '"': result += '"'; break;
+                default: result += str[i + 1]; break;
+            }
+            i++; // Pula o próximo caractere
+        } else {
+            result += str[i];
+        }
+    }
+    return result;
 }
